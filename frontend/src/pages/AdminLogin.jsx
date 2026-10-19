@@ -48,7 +48,7 @@ export default function AdminLogin() {
           <form onSubmit={submit}>
             <div className="field">
               <label className="label">Work email</label>
-              <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@veriqo.com" />
+              <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@workmail.com" />
             </div>
             <div className="field">
               <label className="label">Password</label>
