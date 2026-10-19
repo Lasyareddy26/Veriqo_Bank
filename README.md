@@ -93,9 +93,10 @@ The backend calls it automatically and **degrades gracefully if it isn't running
 Edit `backend/appsettings.json`:
 
 - **Admin account** — exactly one email is the admin; it's seeded on startup, can't be
-  self-registered, and can't sign in via Google:
+  self-registered, and can't sign in via Google. Set your own credentials in
+  `appsettings.Development.json` (gitignored); leave them blank in `appsettings.json`:
   ```json
-  "Admin": { "Email": "admin@veriqo.com", "Password": "Admin@123" }
+  "Admin": { "Email": "<your-admin-email>", "Password": "<your-admin-password>" }
   ```
 - **Google sign-in** (optional) — paste an OAuth Client ID to enable the Google button:
   ```json
@@ -164,16 +165,16 @@ Open http://localhost:5173.
 
 ## Demo accounts
 
-| Role     | Where            | Email               | Password    |
-|----------|------------------|---------------------|-------------|
-| Admin    | **/admin/login** | `admin@veriqo.com`  | `Admin@123` |
-| Customer | /login           | register your own   | —           |
+| Role     | Where            | Credentials                                             |
+|----------|------------------|--------------------------------------------------------|
+| Admin    | **/admin/login** | the `Admin` values you set in appsettings.Development.json |
+| Customer | /login           | register your own                                      |
 
-## Sample documents
+## Testing document upload
 
-`sample-documents/generate.py` creates test KYC images (a matching government ID and
-address proof, plus a salary slip with a deliberate income mismatch to demonstrate
-the risk flags). Run `python3 sample-documents/generate.py` and upload the PNGs.
+Any clear image or PDF of an ID or a bill works for testing the verification pipeline.
+For a genuine-vs-flagged demo, use a Government ID number that matches the seeded registry
+(configurable in `DbSeeder`), and try an edited copy to see the tamper/flag checks.
 
 ## Project structure
 
