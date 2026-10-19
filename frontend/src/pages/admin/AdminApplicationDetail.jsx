@@ -90,6 +90,7 @@ export default function AdminApplicationDetail() {
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
+  const [banner, setBanner] = useState(null); // { type, text }
 
   const load = useCallback(() => {
     client.get(`/admin/applications/${id}`).then((r) => setData(r.data)).finally(() => setLoading(false));
@@ -107,8 +108,22 @@ export default function AdminApplicationDetail() {
       return;
     }
     setBusy(decision);
-    await client.put(`/admin/applications/${id}/decision`, { decision, note });
-    setBusy(""); load();
+    try {
+      const res = await client.put(`/admin/applications/${id}/decision`, { decision, note });
+      const { emailSent, emailTo } = res.data || {};
+      if (decision === "Approved") {
+        setBanner(emailSent
+          ? { type: "success", text: `Application approved — a confirmation email was sent to ${emailTo}.` }
+          : { type: "info", text: "Application approved. Confirmation email was not sent (email isn’t configured on the server)." });
+      } else {
+        setBanner({ type: "success", text: `Decision saved — the customer was notified in-app.` });
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setBanner({ type: "error", text: "Could not save the decision. Please try again." });
+    } finally {
+      setBusy(""); load();
+    }
   };
 
   if (loading) return <div className="row" style={{ justifyContent: "center", padding: 60 }}><Spinner size={28} /></div>;
@@ -121,6 +136,17 @@ export default function AdminApplicationDetail() {
   return (
     <div className="fade-in" style={{ maxWidth: 1000 }}>
       <Link to="/admin" className="row gap-2 small muted" style={{ marginBottom: 18 }}><IconArrowLeft size={16} /> Back to queue</Link>
+
+      {banner && (
+        <div className={`alert alert-${banner.type} fade-in row between`} style={{ marginBottom: 18 }}>
+          <span className="row gap-2">
+            {banner.type === "success" && <IconCheck size={16} />}
+            {banner.text}
+          </span>
+          <button onClick={() => setBanner(null)} aria-label="Dismiss"
+            style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 18, lineHeight: 1, opacity: 0.7 }}>×</button>
+        </div>
+      )}
 
       <div className="row between" style={{ marginBottom: 20 }}>
         <div>
