@@ -9,6 +9,14 @@ Both parts of the WM Joiners assessment are implemented: **Part 1** (customer po
 KYC + admin review) and **Part 2** (an AI support assistant for admins — ticket
 summarization, sentiment, suggested replies, next-best-actions).
 
+### 📐 Architecture deep-dives (with diagrams)
+
+- [**Document verification pipeline**](docs/DOCUMENT_VERIFICATION.md) — how an uploaded KYC
+  file becomes an explainable *genuine / review / fraudulent* verdict: file-safety, duplicate
+  detection, OCR, the ML forensics microservice, and the official registry check.
+- [**AI support assistant**](docs/AI_ASSISTANT.md) — the multi-agent + RAG pipeline that
+  triages a ticket, retrieves bank policy, and drafts a grounded reply for the agent.
+
 ## Tech stack
 
 | Layer      | Technology                                             |
