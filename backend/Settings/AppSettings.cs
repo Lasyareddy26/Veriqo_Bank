@@ -16,8 +16,9 @@ public class JwtSettings
 
 public class AdminSettings
 {
-    public string Email { get; set; } = "admin@veriqo.com";
-    public string Password { get; set; } = "Admin@123";
+    // Real values come from appsettings.Development.json (gitignored); never hard-code them.
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
 
 public class GoogleSettings
