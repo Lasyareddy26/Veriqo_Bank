@@ -72,6 +72,8 @@ public static class DbSeeder
 
     private static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager, AdminSettings admin)
     {
+        if (string.IsNullOrWhiteSpace(admin.Email) || string.IsNullOrWhiteSpace(admin.Password))
+            return; // configure Admin:Email/Password (e.g. in appsettings.Development.json) to seed the admin
         var email = admin.Email.Trim().ToLowerInvariant();
         var existing = await userManager.FindByEmailAsync(email);
         if (existing != null)
