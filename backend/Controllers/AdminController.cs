@@ -18,14 +18,16 @@ public class AdminController : ControllerBase
     private readonly NotificationService _notify;
     private readonly AuditService _audit;
     private readonly IAiAssistant _ai;
+    private readonly IEmailService _email;
 
-    public AdminController(MongoDbContext db, ApplicationService apps, NotificationService notify, AuditService audit, IAiAssistant ai)
+    public AdminController(MongoDbContext db, ApplicationService apps, NotificationService notify, AuditService audit, IAiAssistant ai, IEmailService email)
     {
         _db = db;
         _apps = apps;
         _notify = notify;
         _audit = audit;
         _ai = ai;
+        _email = email;
     }
 
     [HttpGet("stats")]
@@ -117,7 +119,25 @@ public class AdminController : ControllerBase
         await _notify.NotifyAsync(app.UserId, title, msg, type, $"/applications/{app.Id}");
         await _audit.LogAsync(User.Email(), $"Decision: {newStatus}", "Application", id, req.Note);
 
-        return Ok(new { status = newStatus.ToString() });
+        // On approval, send the customer a personalized congratulations email (best-effort —
+        // a mail failure never blocks the decision).
+        bool emailSent = false;
+        string? emailTo = null;
+        if (newStatus == ApplicationStatus.Approved)
+        {
+            var user = await _db.Users.Find(u => u.Id == app.UserId).FirstOrDefaultAsync();
+            var profile = await _db.Profiles.Find(p => p.UserId == app.UserId).FirstOrDefaultAsync();
+            if (user != null && !string.IsNullOrWhiteSpace(user.Email))
+            {
+                emailTo = user.Email;
+                var name = profile?.FullName ?? user.UserName;
+                emailSent = await _email.SendApplicationApprovedAsync(user.Email, name, app.ProductName, req.Note);
+                await _audit.LogAsync(User.Email(), emailSent ? "Approval email sent" : "Approval email not sent (SMTP off/failed)",
+                    "Application", id, user.Email);
+            }
+        }
+
+        return Ok(new { status = newStatus.ToString(), emailSent, emailTo });
     }
 
     [HttpPut("documents/{id}/review")]
