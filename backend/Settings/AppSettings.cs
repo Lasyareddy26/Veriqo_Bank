@@ -58,5 +58,8 @@ public class SmtpSettings
     public string FromName { get; set; } = "Veriqo Bank";
     public bool UseStartTls { get; set; } = true;
 
+    // Used to build links (e.g. the "View your application" button) in transactional emails.
+    public string AppBaseUrl { get; set; } = "http://localhost:5173";
+
     public bool Configured => !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(User);
 }
