@@ -16,3 +16,6 @@ backend/appsettings.*.Local.json
 *.env
 .DS_Store
 *.log
+
+# Local sample/test documents (not for the repo)
+sample-documents/
